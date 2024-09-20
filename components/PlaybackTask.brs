@@ -30,7 +30,7 @@ end sub
 ' Initialize and setup all member variables for easy reference
 '-------------------------------------------
 sub setupScopedVariables()
-    ? "TRUE[X] >>> setupScopedVariables()"
+    tracE("setupScopedVariables()")
 
     m.port = createObject("roMessagePort")  ' Event port.  Must be used for events due to render/task thread scoping
     m.adFacade = m.top.adFacade  ' Hold reference to the component for RAF and Truex ad rendering
@@ -44,7 +44,7 @@ end sub
 ' Initialize video player
 '-----------------------------------------
 sub setupVideo()
-    ? "TRUE[X] >>> setupVideo()"
+    trace("setupVideo()")
 
     videoPlayer = m.top.video
     videoContent = createObject("roSGNode", "ContentNode")
@@ -70,7 +70,8 @@ end sub
 ' Also setup ads via RAF with an ad url
 '-----------------------------------------
 sub setupRaf()
-    ? "TRUE[X] >>> setupRaf()"
+    trace("setupRaf()")
+
     raf = Roku_Ads()
     raf.enableAdMeasurements(true)
     raf.setContentGenre("Entertainment")
@@ -102,7 +103,7 @@ end sub
 ' Will be responsible for checking if there is a preroll and to play it before starting playback
 '-----------------------------------------
 sub initPlayback()
-    ? "TRUE[X] >>> initPlayback()"
+    trace("initPlayback()")
 
     shouldContinuePlayback = handleAdPod(getPreroll())
 
@@ -254,7 +255,7 @@ end sub
 ' Hides and stops stream
 '-----------------------------------------
 sub hideContentStream()
-    ? "TRUE[X] >>> PlaybackTask::hideContentStream(): "
+    trace("hideContentStream()")
 
     if m.videoPlayer <> invalid then
         m.videoPlayer.control = "stop"
@@ -267,7 +268,7 @@ end sub
 ' Bubbles up a message playerDisposed property so invoker knows it is finished cleaning up
 '-----------------------------------------
 sub exitContentStream()
-    ? "TRUE[X] >>> PlaybackTask::exitContentStream(): "
+    trace("exitContentStream()")
 
     if m.videoPlayer <> invalid then
         m.videoPlayer.control = "stop"

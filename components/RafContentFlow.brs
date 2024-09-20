@@ -6,7 +6,7 @@
 ' And starts the task that will begin the playback experience
 '-----------------------------------------------------------------------------------------------------------
 sub init()
-    ? "TRUE[X] >>> RafContentFlow::init()"
+    trace("init()")
     m.videoPlayer = m.top.findNode("videoPlayer")
 
     initRafTask()
@@ -16,7 +16,7 @@ end sub
 ' Sets up the task responsible for managing the player, RAF, and TrueX
 '-------------------------------------------
 sub initRafTask()
-    ? "TRUE[X] >>> RafContentFlow::initRafTask()"
+    trace("initRafTask()")
 
     if m.rafTask = invalid then
         rafTask = CreateObject("roSGNode", "PlaybackTask")
@@ -34,9 +34,10 @@ end sub
 ' Currently only handles back actions, to initiate the exit process
 '-------------------------------------------
 function onKeyEvent(key as string, press as boolean) as boolean
-    ? "TRUE[X] >>> ContentFlow::onKeyEvent(key=";key;" press=";press.ToStr();")"
+    trace("onKeyEvent(key: %s, press: %s)".format(key, press.ToStr()))
+
     if press and key = "back" then
-        ? "TRUE[X] >>> ContentFlow::onKeyEvent() - back pressed while content is playing, requesting stream cancel..."
+        trace("onKeyEvent() - back pressed while content is playing, requesting stream cancel...")
         m.rafTask.exitPlayback = true
     end if
     return press

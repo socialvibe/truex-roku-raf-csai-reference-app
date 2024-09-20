@@ -1,4 +1,4 @@
-' Copyright (c) 2024 true[X], Inc. All rights reserved.
+' Copyright (c) 2019 true[X], Inc. All rights reserved.
 '-------------------------------------------------------------------------------------------------------------
 ' DetailsFlow
 '-------------------------------------------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 '-------------------------------------------------------------------------------------------------------------
 
 sub init()
-    ? "TRUE[X] >>> DetailsFlow::init()"
+    trace("init()")
 
     m.rootLayout = m.top.FindNode("baseFlowLayout")
 
@@ -59,7 +59,7 @@ end function
 ' Callback triggered when Play button is selected. Starts the stream by signaling via m.top.event.
 '--------------------------------------------------------------------------------------------------
 sub onPlayButtonSelected()
-    ? "TRUE[X] >>> DetailsFlow::onPlayButtonSelected()"
+    trace("onPlayButtonSelected()")
     m.top.event = { trigger: "playButtonSelected", details: "TODO: pass selected content data" }
 end sub
 
@@ -72,7 +72,7 @@ end sub
 '------------------------------------------------------------------------------------------------------------------
 sub onImageLoaded(event as Object)
     data = event.GetData()
-    ? "TRUE[X] >>> DetailsFlow::onImageLoaded(event=";data;")"
+    trace("onImageLoaded()", data)
     if data <> "loading" then m.numImagesLoading -= 1
     if m.numImagesLoading = 0 then m.rootLayout.visible = true
 end sub
