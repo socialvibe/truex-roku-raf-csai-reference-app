@@ -49,3 +49,27 @@ sub setGlobalField(fieldName as string, fieldValue as dynamic)
         ? "TRUE[X] >>> GlobalUtils::setGlobalField() - updating existing field (";fieldName;") in m.global..."
     end if
 end sub
+
+sub emptyMessageQueue(port as Object)
+    ? ""
+    ? ""
+    ? ""
+    ? ""
+    trace("emptyMessageQueue() -- start")
+
+    while true
+        msg = port.GetMessage()
+
+        if msg = invalid then
+            exit while
+        else
+            traceEventMessage(msg)
+        end if
+    end while
+
+    trace("emptyMessageQueue() -- end")
+    ? ""
+    ? ""
+    ? ""
+    ? ""
+end sub

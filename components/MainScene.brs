@@ -14,7 +14,7 @@
 ' the LoadingFlow to indicate that a (potentially) long running operation is being performed.
 '------------------------------------------------------------------------------------------------------
 sub init()
-    ? "TRUE[X] >>> MainScene::init()"
+    trace("init()")
 
     ' grab a reference to the root layout node, which will be the parent layout for all nodes
     m.rootLayout = m.top.findNode("rootLayout")
@@ -40,7 +40,7 @@ end sub
 '-------------------------------------------------------------------
 sub onFlowEvent(event as object)
     data = event.GetData()
-    ? "TRUE[X] >>> MainScene::onFlowEvent(trigger=";data.trigger;")"
+    trace("onFlowEvent(trigger='%s')".format(data.trigger))
 
     if data.trigger = "playButtonSelected" then
         showFlow("RafContentFlow")  ' RAF Truex Integration
@@ -60,26 +60,18 @@ end sub
 sub onTruexLibraryLoadStatusChanged(event as Object)
     ' make sure tarLibrary has been initialized
     if m.tarLibrary = invalid then return
-    ? "TRUE[X] >>>  MainScene::onTruexLibraryLoadStatusChanged(loadStatus=";m.tarLibrary.loadStatus;")"
+
+    trace("onTruexLibraryLoadStatusChanged() --- loadStatus: '%s')".format(m.tarLibrary.loadStatus))
 
     ' check the library's loadStatus
-    if m.tarLibrary.loadStatus = "none" then
-        ? "TRUE[X] >>> TruexAdRendererLib is not currently being downloaded"
-    else if m.tarLibrary.loadStatus = "loading" then
-        ? "TRUE[X] >>> TruexAdRendererLib is currently being downloaded and compiled"
-    else if m.tarLibrary.loadStatus = "ready" then
-        ? "TRUE[X] >>> TruexAdRendererLib has been loaded successfully!"
+    if m.tarLibrary.loadStatus = "ready" then
+        m.global.addFields({ "___truexLibrary": m.tarLibrary })
 
         ' present the DetailsFlow now that the Truex library is ready
         showFlow("DetailsFlow")
     else if m.tarLibrary.loadStatus = "failed" then
-        ? "TRUE[X] >>> TruexAdRendererLib failed to load"
-
         ' present the DetailsFlow, streams should use standard ads since the Truex library couldn't be loaded
         if m.global.streamInfo <> invalid then showFlow("DetailsFlow")
-    else
-        ' should not occur
-        ? "TRUE[X] >>> TruexAdRendererLib loadStatus unrecognized, ignoring"
     end if
 end sub
 
@@ -92,7 +84,8 @@ end sub
 '   * flowName as String - required; the component name of the new Flow
 '----------------------------------------------------------------------------------
 sub showFlow(flowName as String)
-    ? "TRUE[X] >>> MainScene::showFlow(flowName=";flowName;")"
+    trace("showFlow(flowName: '%s')".format(flowName))
+
     ' flowName must be provided
     if flowName = invalid then return
 
@@ -117,7 +110,7 @@ end sub
 ' Does nothing if m.currentFlow is not set.
 '-----------------------------------------------------------------------
 sub removeCurrentFlow()
-    ' ? "TRUE[X] >>> MainScene::removeCurrentFlow(currentFlow=";m.currentFlow;")"
+    trace("removeCurrentFlow()", m.currentFlow)
 
     if m.currentFlow <> invalid then
         m.currentFlow.UnobserveField("event")

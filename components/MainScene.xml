@@ -9,14 +9,14 @@
     Handles loading the True[X] library, presenting LoadingFlow when long operations are running, transitioning
     between DetailsFlow and ContentFlow, and notifying users of errors with ErrorFlow.
 -->
-<component
-    name="MainScene"
-    extends="Scene"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+<component name="MainScene" extends="Scene"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
 
     <script type="text/brightscript" uri="pkg:/components/MainScene.brs"/>
     <script type="text/brightscript" uri="pkg:/source/GlobalUtils.brs"/>
+    <script type="text/brightscript" uri="pkg:/source/trace.brs"/>
 
     <children>
         <!--
@@ -25,8 +25,7 @@
         <ComponentLibrary id="TruexAdRendererLib" uri="https://ctv.truex.com/roku/v1/release/TruexAdRenderer-Roku-v1.pkg"/>
 
         <!-- Used as parent layout for all Flow's. -->
-        <Group
-            id="rootLayout"/>
+        <Group id="rootLayout"/>
 
     </children>
 </component>
