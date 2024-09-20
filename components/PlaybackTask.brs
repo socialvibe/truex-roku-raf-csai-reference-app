@@ -77,6 +77,8 @@ sub setupRaf()
     raf.setContentGenre("Entertainment")
     raf.setContentId("TrueXSample")
 
+    raf.enableInPodStitching(true)
+
     raf.setDebugOutput(true) 'debugging
     raf.setAdPrefs(false)
 
@@ -327,8 +329,6 @@ function playTrueXAd(adContainer as Object, truexAdInfo as Object, slotType = "p
     while true
         msg = wait(0, port)
 
-        traceEventMessage(msg)
-
         if type(msg) <> "roSGNodeEvent" and msg.GetField() <> "event" then
             continue while
         end if
@@ -349,6 +349,12 @@ function playTrueXAd(adContainer as Object, truexAdInfo as Object, slotType = "p
         ' - "adError" - when the true[X] unit has encountered an unrecoverable error
         ' - "userCancelStream" - ' User exits playback. EG. Typically "back" on choice card
         if truexEvent.type = "adError" then
+            if truexEvent.errorMessage <> invalid then
+                result.error = truexEvent.errorMessage
+            else
+                result.error = "unknown error"
+            end if
+
             exit while
         else if truexEvent.type = "noAdsAvailable" then
             exit while
