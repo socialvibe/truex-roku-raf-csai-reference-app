@@ -180,65 +180,6 @@ function getPreroll() as Dynamic
 end function
 
 '-------------------------------------------
-' General ad handler.  Takes care of seeing for a given pod, to play a truex ad
-' or play regular ads
-'
-' Return:
-'   false if playback should not be resumed yet (truex case mainly)
-'   true if playback should be resumed (non-ad or certain raf cases)
-'-----------------------------------------
-function handleAdPod(adPod as Dynamic) as Boolean
-    m.currentAdPod = adPod
-
-    'Assume truex can only be first ad in a pod
-    firstAd = adPod.ads[0]
-
-    ' stop the content player
-    hideContentStream()
-
-    shouldSkipRemainingAds = false
-    shouldContinuePlayback = true
-
-    if isTruexAd(firstAd) then
-        ' Need to delete the ad from the pod which is referenced by raf so it plays
-        ' ads from the correct index when resulting in non-truex flows (eg. opt out)
-        ' If it is not deleted, this pod will attempt to play the truex ad placeholder
-        ' when it is passed into raf.showAds()
-        adPod.ads.delete(0)
-        adPod.duration -= firstAd.duration
-
-        ' Takes thread ownership until complete or exit
-        truexAdResult = playTrueXAd(m.top.adFacade, firstAd, adPod.rendersequence)
-        shouldSkipRemainingAds = truexAdResult.shouldSkipRemainingAds
-        ' emptyMessageQueue(m.port)
-    end if
-
-    if not(shouldSkipRemainingAds) then
-        ' Takes thread ownership until complete or exit
-        shouldContinuePlayback = m.raf.showAds(adPod, invalid, m.adFacade)
-    end if
-
-    return shouldContinuePlayback
-end function
-
-'-------------------------------------------
-' Helper to see if an ad is TrueX
-' Checks if there is an <AdParameter> tag, and the ad server is a qa or prod truex domain
-'
-' Return:
-'   true if TrueX, false if other
-'-----------------------------------------
-function isTruexAd(adInfo) as Boolean
-    prodDomain = "get.truex.com/"
-    qaDomain = "qa-get.truex.com/"
-
-    hasAdParameters = adInfo.adParameters <> invalid
-    hasValidAdServerUrl = adInfo.adserver?.instr(0, prodDomain) > 0 or adInfo.adserver?.instr(0, qaDomain)
-
-    return hasAdParameters and hasValidAdServerUrl
-end function
-
-'-------------------------------------------
 ' Handles checking if there are ads to play before starting/resuming playback
 '-----------------------------------------
 sub playContentStream()
@@ -280,6 +221,52 @@ sub exitContentStream()
 end sub
 
 '-------------------------------------------
+' General ad handler.  Takes care of seeing for a given pod, to play a truex ad
+' or play regular ads
+'
+' Return:
+'   false if playback should not be resumed yet (truex case mainly)
+'   true if playback should be resumed (non-ad or certain raf cases)
+'-----------------------------------------
+function handleAdPod(adPod as Dynamic) as Boolean
+    m.currentAdPod = adPod
+
+    'Assume truex can only be first ad in a pod
+    firstAd = adPod.ads[0]
+
+    trace("handleAdPod() -- ads: %d, truexAd: %s".format(adPod.ads.count(), isTruexAd(firstAd).toStr()))
+
+    ' stop the content player
+    hideContentStream()
+
+    shouldSkipRemainingAds = false
+    shouldContinuePlayback = true
+
+    if isTruexAd(firstAd) then
+        ' Need to delete the ad from the pod which is referenced by raf so it plays
+        ' ads from the correct index when resulting in non-truex flows (eg. opt out)
+        ' If it is not deleted, this pod will attempt to play the truex ad placeholder
+        ' when it is passed into raf.showAds()
+        adPod.ads.delete(0)
+        adPod.duration -= firstAd.duration
+
+        ' Takes thread ownership until complete or exit
+        truexAdResult = playTrueXAd(m.top.adFacade, firstAd, adPod.rendersequence)
+        shouldSkipRemainingAds = truexAdResult.shouldSkipRemainingAds
+        ' emptyMessageQueue(m.port)
+    end if
+
+    if not(shouldSkipRemainingAds) then
+        ' Takes thread ownership until complete or exit
+        shouldContinuePlayback = m.raf.showAds(adPod, invalid, m.adFacade)
+    end if
+
+    m.currentAdPod = invalid
+
+    return shouldContinuePlayback
+end function
+
+'-------------------------------------------
 ' Handles responsibility of initializing the TrueX Ad Renderer (TAR) and starting the
 ' interactive ad experience.  Stops and hides the content video player
 '-----------------------------------------
@@ -289,6 +276,8 @@ function playTrueXAd(adContainer as Object, truexAdInfo as Object, slotType = "p
     end if
 
     port = CreateObject("roMessagePort")
+
+    version = CreateObject("roSGNode", "TruexLibrary:TruexVersion")
 
     truexAdRenderer = adContainer.createChild("TruexLibrary:TruexAdRenderer")
     truexAdRenderer.observeFieldScoped("event", port)
@@ -382,40 +371,68 @@ function playTrueXAd(adContainer as Object, truexAdInfo as Object, slotType = "p
     truexAdRenderer = invalid
 
     return result
-  end function
+end function
 
-  function loadTrueXRendererLibrary() as Boolean
-    if m.global.hasField("___truexLibrary") then
-      trace("loadTrueXRendererLibrary() -- already loaded")
+'-------------------------------------------
+' Helper to see if an ad is TrueX
+' Checks if there is an <AdParameter> tag, and the ad server is a qa or prod truex domain
+'
+' Return:
+'   true if TrueX, false if other
+'-----------------------------------------
+function isTruexAd(adInfo) as Boolean
+    prodDomain = "get.truex.com/"
+    qaDomain = "qa-get.truex.com/"
 
-      return true
+    hasAdParameters = adInfo.adParameters <> invalid
+    hasValidAdServerUrl = adInfo.adserver?.instr(0, prodDomain) > 0 or adInfo.adserver?.instr(0, qaDomain)
+
+    return hasAdParameters and hasValidAdServerUrl
+end function
+
+function loadTrueXRendererLibrary() as Boolean
+    try
+        truexVersion = CreateObject("roSGNode", "TruexLibrary:TruexVersion")
+    catch e
+        stop
+    end try
+
+    if truexVersion = invalid then
+        port = CreateObject("roMessagePort")
+        truexLibraryUrl = "https://ctv.truex.com/roku/v1/release/TruexAdRenderer-Roku-v1.pkg"
+
+        trace("loadTrueXRendererLibrary() -- loading: %s".format(truexLibraryUrl))
+
+        truexRendererLibrary = CreateObject("roSGNode", "ComponentLibrary")
+        truexRendererLibrary.id = "truex-ad-renderer-library"
+        truexRendererLibrary.uri = truexLibraryUrl
+        truexRendererLibrary.observeFieldScoped("loadStatus", port)
+
+        while true
+            msg = wait(10000, port)
+
+            if msg = invalid or type(msg) <> "roSGNodeEvent" then
+                exit while
+            end if
+
+            if truexRendererLibrary.loadStatus = "ready" then
+                m.global.addFields({ "___truexLibrary": truexRendererLibrary })
+                exit while
+            else if truexRendererLibrary.loadStatus = "failed" then
+                exit while
+            end if
+        end while
+
+        trace("loadTrueXRendererLibrary() -- loadStatus: %s".format(truexRendererLibrary.loadStatus))
     end if
 
-    port = CreateObject("roMessagePort")
+    truexVersion = CreateObject("roSGNode", "TruexLibrary:TruexVersion")
 
-    truexRendererLibrary = CreateObject("roSGNode", "ComponentLibrary")
-    truexRendererLibrary.id = "truex-ad-renderer-library"
-    truexRendererLibrary.uri = "https://ctv.truex.com/roku/v1/release/TruexAdRenderer-Roku-v1.pkg"
-    truexRendererLibrary.observeFieldScoped("loadStatus", port)
-
-    while true
-      msg = wait(10000, port)
-
-      if msg = invalid or type(msg) <> "roSGNodeEvent" then
-        exit while
-      end if
-
-      if truexRendererLibrary.loadStatus = "ready" or truexRendererLibrary.loadStatus = "failed" then
-        exit while
-      end if
-    end while
-
-    trace("loadTrueXRendererLibrary() -- loadStatus: %s".format(truexRendererLibrary.loadStatus))
-
-    if truexRendererLibrary.loadStatus = "ready" then
-      m.global.addFields({ "___truexLibrary": truexRendererLibrary })
-      return true
+    if truexVersion = invalid then
+        return false
     end if
 
-    return false
+    trace("loadTrueXRendererLibrary() -- version: %s".format(truexVersion.value))
+
+    return true
 end function

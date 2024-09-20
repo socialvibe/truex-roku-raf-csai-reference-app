@@ -1,4 +1,4 @@
-# truex-roku-raf-reference-app
+# truex-roku-raf-csai-reference-app
 [![Roku / Build sideload package](https://github.com/socialvibe/truex-roku-raf-reference-app/actions/workflows/sideload-package.yml/badge.svg?event=push)](https://github.com/socialvibe/truex-roku-raf-reference-app/actions/workflows/sideload-package.yml)
 
 ## Overview
