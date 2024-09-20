@@ -6,9 +6,10 @@
 
     UX which contains the video player that is used to play the media stream.
 -->
-<component
-    name="RafContentFlow"
-    extends="BaseFlow">
+<component name="RafContentFlow" extends="BaseFlow"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
 
     <script
         type="text/brightscript"
@@ -22,7 +23,6 @@
             <Video
               id="videoPlayer"
               notificationInterval="0.5"/>
-
         </Group>
     </children>
 </component>

@@ -1,10 +1,10 @@
 # Copyright (c) 2019 true[X], Inc. All rights reserved.
 
 ##   Channel Details
-title=TAR-Roku-Reference
+title=truex-roku-raf-csai-reference-app
 major_version=1
-minor_version=2
-build_version=0002
+minor_version=4
+build_version=0000
 ui_resolutions=fhd
 supports_input_launch=1
 rsg_version=1.2

@@ -7,9 +7,10 @@
     A simple layout that attempts to mimic common video stream service UI (Netflix, etc...). Used to trigger the
     test content stream (via the Play button).
 -->
-<component
-    name="DetailsFlow"
-    extends="BaseFlow">
+<component name="DetailsFlow" extends="BaseFlow"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
 
     <script type="text/brightscript" uri="pkg:/components/DetailsFlow.brs"/>
 

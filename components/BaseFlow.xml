@@ -6,14 +6,15 @@
 
     Encapsulate common Flow functionality.
 -->
-<component
-    name="BaseFlow"
-    extends="Group">
+<component name="BaseFlow" extends="Group"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+
+    <script type="text/brightscript" uri="pkg:/source/trace.brs" />
 
     <interface>
         <!-- Observable field for bubbling events from Flow's to MainScene (which orchestrates Flow's) -->
         <field id="event" type="assocarray"/>
     </interface>
-
-    <children/>
 </component>

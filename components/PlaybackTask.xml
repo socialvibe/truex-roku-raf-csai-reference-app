@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Copyright (c) 2019 true[X], Inc. All rights reserved. -->
 
-<component name="PlaybackTask" extends="Task">
+<component name="PlaybackTask" extends="Task"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+
     <script type="text/brightscript" uri="pkg:/components/PlaybackTask.brs"/>
+    <script type="text/brightscript" uri="pkg:/source/trace.brs"/>
+    <script type="text/brightscript" uri="pkg:/source/GlobalUtils.brs" />
 
     <interface>
         <!-- Read -->
