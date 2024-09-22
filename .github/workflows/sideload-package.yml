@@ -6,7 +6,7 @@ name: Roku / Build sideload package
 on:
   push:
     branches:
-      - main
+      - master
       - develop
 
   pull_request:
