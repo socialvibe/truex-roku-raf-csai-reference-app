@@ -394,7 +394,7 @@ function loadTrueXRendererLibrary() as Boolean
     try
         truexVersion = CreateObject("roSGNode", "TruexLibrary:TruexVersion")
     catch e
-        stop
+        ' nothign here
     end try
 
     if truexVersion = invalid then
