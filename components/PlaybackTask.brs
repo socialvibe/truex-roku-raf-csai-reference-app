@@ -291,8 +291,8 @@ function playTrueXAd(adContainer as Object, truexAdInfo as Object, slotType = "p
     if truexAdInfo.adparameters <> invalid then
         adParameters = ParseJson(truexAdInfo.adparameters)
     else
-        encodedAdParameters = truexAdInfo.companionads[0].url.split("data:application/json;base64,")[1]
-        encodedAdParameters = encodedAdParameters.replace(chr(10), "")
+        encodedAdParameters = truexAdInfo.companionads[0].url.Split("data:application/json;base64,")[1]
+        encodedAdParameters = encodedAdParameters.Replace(Chr(10), "")
 
         buffer = CreateObject("roByteArray")
         buffer.FromBase64String(encodedAdParameters)
@@ -400,7 +400,7 @@ function isTruexAd(adInfo) as Boolean
     qaDomain = "qa-get.truex.com/"
 
     ' has valid `adserver` value, usually it will be truex ad request url
-    hasValidAdServer = (adInfo.adserver?.instr?(0, prodDomain) > 0 or adInfo.adserver?.instr?(0, qaDomain) > 0)
+    hasValidAdServer = (adInfo.adserver?.Instr?(0, prodDomain) > 0 or adInfo.adserver?.Instr?(0, qaDomain) > 0)
 
     ' there are 2 ways how `adParameters` might be defined
     ' - as `Creative[id="super_tag"].Linear.AdParameters` section in VAST - as json string
