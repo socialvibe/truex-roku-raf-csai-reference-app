@@ -231,7 +231,7 @@ end sub
 function handleAdPod(adPod as Dynamic) as Boolean
     m.currentAdPod = adPod
 
-    'Assume truex can only be first ad in a pod
+    ' assume truex can only be the first ad in a pod
     firstAd = adPod.ads[0]
 
     trace("handleAdPod() -- ads: %d, truexAd: %s".format(adPod.ads.count(), isTruexAd(firstAd).toStr()))
@@ -285,9 +285,24 @@ function playTrueXAd(adContainer as Object, truexAdInfo as Object, slotType = "p
     ' get channel's design resolution
     rect = m.top.getScene().currentDesignResolution
 
+    ' there are 2 ways how `adParameters` might be defined
+    ' - as `Creative[id="super_tag"].Linear.AdParameters` section in VAST - as json string
+    ' - as `Creative[id="super_tag"].CompanionAds.Companion.StaticResource[creativeType="application/json"]` as base64 encoded json string
+    if truexAdInfo.adparameters <> invalid then
+        adParameters = ParseJson(truexAdInfo.adparameters)
+    else
+        encodedAdParameters = truexAdInfo.companionads[0].url.Split("data:application/json;base64,")[1]
+        encodedAdParameters = encodedAdParameters.Replace(Chr(10), "")
+
+        buffer = CreateObject("roByteArray")
+        buffer.FromBase64String(encodedAdParameters)
+
+        adParameters = ParseJson(buffer.ToAsciiString())
+    end if
+
     initAction = {
         type: "init",
-        adParameters: ParseJson(truexAdInfo.adparameters)
+        adParameters: adParameters,
         slotType: ucase(slotType),
 
         ' enables cancelStream event types, disable if Channel does not support
@@ -384,10 +399,16 @@ function isTruexAd(adInfo) as Boolean
     prodDomain = "get.truex.com/"
     qaDomain = "qa-get.truex.com/"
 
-    hasAdParameters = adInfo.adParameters <> invalid
-    hasValidAdServerUrl = adInfo.adserver?.instr(0, prodDomain) > 0 or adInfo.adserver?.instr(0, qaDomain)
+    ' has valid `adserver` value, usually it will be truex ad request url
+    hasValidAdServer = (adInfo.adserver?.Instr?(0, prodDomain) > 0 or adInfo.adserver?.Instr?(0, qaDomain) > 0)
 
-    return hasAdParameters and hasValidAdServerUrl
+    ' there are 2 ways how `adParameters` might be defined
+    ' - as `Creative[id="super_tag"].Linear.AdParameters` section in VAST - as json string
+    ' - as `Creative[id="super_tag"].CompanionAds.Companion.StaticResource[creativeType="application/json"]` as base64 encoded json string
+    hasValidAdParameters = (adInfo.adparameters <> invalid)
+    hasValidCompanion = (adInfo.companionads?[0]?.url?.StartsWith?("data:application/json;base64,") = true)
+
+    return hasValidAdServer and (hasValidAdParameters or hasValidCompanion)
 end function
 
 function loadTrueXRendererLibrary() as Boolean
